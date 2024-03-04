@@ -1,2 +1,11 @@
 # http-streaming
-this is a repository where experimenting http-streaming techinques
+
+This is a repository where experimenting http-streaming techinques
+
+## Sequence Diagram
+
+![](http-streaming.png)
+
+## Articles
+
+* [How to stream data over HTTP using Node and Fetch API](https://dev.to/bsorrentino/how-to-stream-data-over-http-using-node-and-fetch-api-4ij2)
