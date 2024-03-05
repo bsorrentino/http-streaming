@@ -21,7 +21,7 @@ type Item = {
 }
 async function *fetchItems(): AsyncGenerator<Item, void, unknown> {
   
-  for( let i = 0 ; i < 100 ; ++i ) {
+  for( let i = 0 ; i < 10 ; ++i ) {
     await sleep(1000)
     yield {
       key: `key${i}`,
