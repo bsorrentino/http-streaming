@@ -95,10 +95,11 @@ class ThreadBasedStreamingServlet extends HttpServlet {
         response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
 
-        final PrintWriter writer = response.getWriter();
-
         // Start asynchronous processing
         var asyncContext = request.startAsync();
+
+        // Acquire a writer from response
+        final PrintWriter writer = response.getWriter();
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -108,11 +109,10 @@ class ThreadBasedStreamingServlet extends HttpServlet {
                     var data = new ChunkOfData(chunk);
 
                     try {
-                        var stateAsString = objectMapper.writeValueAsString(data);
-                        writer.println(stateAsString);
+                        var serializedData = objectMapper.writeValueAsString(data);
+                        writer.println(serializedData);
                     } catch (IOException e) {
-                        StreamingServer.log.warn("error serializing state", e);
-                        writer.printf("{ \"index\": %d, \"value\": \"%s\" }\n", chunk, e.getLocalizedMessage());
+                        StreamingServer.log.warn("error serializing data!. skip it.", e);
                     }
                     writer.flush();
                     TimeUnit.SECONDS.sleep(1);
