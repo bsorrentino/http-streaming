@@ -111,13 +111,14 @@ class ThreadBasedStreamingServlet extends HttpServlet {
                         var stateAsString = objectMapper.writeValueAsString(data);
                         writer.println(stateAsString);
                     } catch (IOException e) {
-                        StreamingServer.log.info("error serializing state", e);
+                        StreamingServer.log.warn("error serializing state", e);
                         writer.printf("{ \"index\": %d, \"value\": \"%s\" }\n", chunk, e.getLocalizedMessage());
                     }
                     writer.flush();
                     TimeUnit.SECONDS.sleep(1);
                 }
             } catch (InterruptedException e) {
+                StreamingServer.log.error("got an interrupt on processing!", e);
                 throw new RuntimeException(e);
             }
         }).whenComplete((result, ex) -> {
