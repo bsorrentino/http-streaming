@@ -19,6 +19,6 @@ After cloned project from github, run the following commands:
 
 * run the project:
   ```bash
-  mvn clean install exec:java@test
+  mvn exec:java@test
   ```
   and open http://localhost:8080 in your browser
