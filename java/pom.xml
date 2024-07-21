@@ -31,14 +31,21 @@
     </dependencyManagement>
 
     <dependencies>
-<!--
+
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
-            <scope>provided</scope>
+            <groupId>org.bsc.async</groupId>
+            <artifactId>async-generator-jdk8</artifactId>
+            <version>2.0.1</version>
         </dependency>
--->
+
+        <!--
+                <dependency>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                    <version>3.0.1</version>
+                    <scope>provided</scope>
+                </dependency>
+        -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -99,15 +106,6 @@
                         <configuration>
                             <classpathScope>test</classpathScope>
                             <mainClass>org.bsc.poc.StreamingServerTest</mainClass>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- exec:java@generator -->
-                        <id>generator</id>
-                        <goals><goal>java</goal></goals>
-                        <configuration>
-                            <classpathScope>test</classpathScope>
-                            <mainClass>org.bsc.poc.AsyncGeneratorStreamingServerTest</mainClass>
                         </configuration>
                     </execution>
                 </executions>

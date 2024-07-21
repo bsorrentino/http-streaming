@@ -9,8 +9,12 @@
     <script type="module" src="streaming.js"></script>
 </head>
 
-<body> 
-    <streaming-poc url="http://localhost:8080"></streaming-poc>
+<body>
+    <h1>thread based</h1>
+    <streaming-poc url="http://localhost:8080/stream"></streaming-poc>
+    <hr/>
+    <h1>with async generator</h1>
+    <streaming-poc url="http://localhost:8080/generator-stream"></streaming-poc>
 </body>
 
 </html>

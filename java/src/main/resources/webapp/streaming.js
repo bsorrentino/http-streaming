@@ -43,7 +43,12 @@ export class StreamingElement extends HTMLElement {
    * @static
    * @type {string}
    */
-  static styles = ``
+  static styles = `
+    .scrollable {
+      overflow: auto;
+      height: 200px;
+    }
+    `
 
   get url() { return this.getAttribute('url') }
 
@@ -61,7 +66,7 @@ export class StreamingElement extends HTMLElement {
       <style>
         ${StreamingElement.styles}
       </style>
-      <ol>
+      <ol class="scrollable">
       </ol>
     `;
   }
@@ -89,7 +94,7 @@ export class StreamingElement extends HTMLElement {
   async #fetchStreamingData() {
 
     console.debug( 'start fetching data')
-    const execResponse = await fetch(`${this.url}/stream`);
+    const execResponse = await fetch(`${this.url}`);
 
     for await (let chunk of streamingResponse( execResponse )  ) {
         console.debug( 'fetched chunk', chunk )

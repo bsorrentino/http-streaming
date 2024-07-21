@@ -1,10 +1,5 @@
 package org.bsc.poc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Handler;
@@ -16,10 +11,7 @@ import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -64,6 +56,7 @@ public interface StreamingServer {
             ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
             // Add the streaming servlet
             context.addServlet(new ServletHolder(new ThreadBasedStreamingServlet()), "/stream");
+            context.addServlet(new ServletHolder(new AsyncGeneratorBasedStreamingServlet()), "/generator-stream");
 
             Handler.Sequence handlerList = new Handler.Sequence(resourceHandler, context);
 
@@ -78,52 +71,6 @@ public interface StreamingServer {
             }, Runnable::run);
 
         }
-    }
-}
-
-record ChunkOfData( int index, String value ) {
-    public ChunkOfData( int index ) {
-        this( index, "Item"+ index );
-    }
-}
-class ThreadBasedStreamingServlet extends HttpServlet {
-    final ObjectMapper objectMapper = new ObjectMapper();
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
-        // Start asynchronous processing
-        var asyncContext = request.startAsync();
-
-        // Acquire a writer from response
-        final PrintWriter writer = response.getWriter();
-
-        CompletableFuture.runAsync(() -> {
-            try {
-
-                for (int chunk = 0; chunk < 10; ++chunk) {
-
-                    var data = new ChunkOfData(chunk);
-
-                    try {
-                        var serializedData = objectMapper.writeValueAsString(data);
-                        writer.println(serializedData);
-                    } catch (IOException e) {
-                        StreamingServer.log.warn("error serializing data!. skip it.", e);
-                    }
-                    writer.flush();
-                    TimeUnit.SECONDS.sleep(1);
-                }
-            } catch (InterruptedException e) {
-                StreamingServer.log.error("got an interrupt on processing!", e);
-                throw new RuntimeException(e);
-            }
-        }).whenComplete((result, ex) -> {
-            writer.close();
-            asyncContext.complete();
-        });
     }
 }
 
