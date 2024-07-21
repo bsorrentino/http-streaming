@@ -10,31 +10,40 @@ import org.bsc.async.AsyncGeneratorQueue;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import static java.util.concurrent.CompletableFuture.completedFuture;
 
 public class AsyncGeneratorBasedStreamingServlet extends HttpServlet {
     final ObjectMapper objectMapper = new ObjectMapper();
 
-    private AsyncGenerator<ChunkOfData> startAsyncTask() {
+    /**
+     * task emitter
+     *
+     * @param emitter
+     */
+    private void taskEmitter( BlockingQueue<AsyncGenerator.Data<ChunkOfData>> emitter ) {
 
-        return AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), emitter -> {
-            try {
+        try {
 
-                for (int chunk = 0; chunk < 10; ++chunk) {
+            for (int chunk = 0; chunk < 10; ++chunk) {
 
-                    var data = new ChunkOfData(chunk);
+                TimeUnit.SECONDS.sleep(1);
 
-                    emitter.put( AsyncGenerator.Data.of(data) );
-
-                    TimeUnit.SECONDS.sleep(1);
-                }
-            } catch (InterruptedException e) {
-                StreamingServer.log.error("got an interrupt on processing!", e);
-                throw new RuntimeException(e);
+                emitter.add( AsyncGenerator.Data.of(new ChunkOfData(chunk)));
             }
 
-        });
+        }
+        catch (InterruptedException e) {
+            StreamingServer.log.error("got an interrupt on processing!", e);
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
@@ -48,8 +57,9 @@ public class AsyncGeneratorBasedStreamingServlet extends HttpServlet {
         // Acquire a writer from response
         final PrintWriter writer = response.getWriter();
 
-        startAsyncTask().forEachAsync( chunk -> {
+        var startAsyncTasks = AsyncGeneratorQueue.of(new LinkedBlockingQueue<>(), this::taskEmitter );
 
+        startAsyncTasks.forEachAsync( chunk -> {
             try {
                 var serializedData = objectMapper.writeValueAsString(chunk);
                 writer.println(serializedData);

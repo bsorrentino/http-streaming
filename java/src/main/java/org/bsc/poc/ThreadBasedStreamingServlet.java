@@ -30,6 +30,7 @@ class ThreadBasedStreamingServlet extends HttpServlet {
 
                 for (int chunk = 0; chunk < 10; ++chunk) {
 
+                    TimeUnit.SECONDS.sleep(1);
                     var data = new ChunkOfData(chunk);
 
                     try {
@@ -39,7 +40,6 @@ class ThreadBasedStreamingServlet extends HttpServlet {
                         StreamingServer.log.warn("error serializing data!. skip it.", e);
                     }
                     writer.flush();
-                    TimeUnit.SECONDS.sleep(1);
                 }
             } catch (InterruptedException e) {
                 StreamingServer.log.error("got an interrupt on processing!", e);
